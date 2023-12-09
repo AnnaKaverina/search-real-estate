@@ -1,0 +1,38 @@
+"""Exposes a URL that specifies the behavior of this scalar."""
+directive @specifiedBy(
+  """The URL that specifies the behavior of this scalar."""
+  url: String!
+) on SCALAR
+
+input Filter {
+  minLandPlotSquare: Int
+  maxLandPlotSquare: Int
+  minHouseSquare: Int
+  maxHouseSquare: Int
+  minCost: Int
+  maxCost: Int
+}
+
+type House {
+  id: ID!
+  square: Int
+}
+
+type LandPlot {
+  id: ID!
+  square: Int
+}
+
+type Query {
+  realEstateObject(filter: Filter): [RealEstateObject]!
+  realEstateObjects(limit: Int! = 5, start: Int! = 0): [RealEstateObject]!
+}
+
+type RealEstateObject {
+  id: ID!
+  type: String!
+  cost: Int
+  landPlot: LandPlot!
+  house: House
+}
+
