@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { SetStateAction, useState, Dispatch } from 'react';
 import { styled } from '@mui/system';
 import {Slider as BaseSlider, sliderClasses} from "@mui/material";
+import { SliderOwnProps, Typography } from '@mui/material';
 
 const Slider = styled(BaseSlider)(
   ({ value }) => `
@@ -8,7 +9,7 @@ const Slider = styled(BaseSlider)(
     &:before {
       content: '${typeof value === 'object' ? String(value[0]) : ''}';
       position: absolute;
-      min-width: 50px;
+      min-width: 100px;
       height: 30px;
       border-radius: 3px;
       top: 20px;
@@ -26,15 +27,49 @@ const Slider = styled(BaseSlider)(
 `,
 );
 
-const ProgressInput = () => {
+const Wrapper = styled('div')({
+  marginTop: '20px'
+})
+
+interface ProgressInput {
+  min: number
+  max: number
+  minimalDistance: number
+  title: string
+  unitTitle: string
+  thumbs: number[]
+  setThumbs: Dispatch<SetStateAction<number[]>>
+}
+
+const ProgressInput = ({ min, max, minimalDistance, title, unitTitle, thumbs, setThumbs }: ProgressInput) => {
+
+
+  const onChange: SliderOwnProps['onChange'] = (_, values) => {
+    const [left, right] = values as number[]
+    if (thumbs[0] !== left) {
+      setThumbs((prevState) => [Math.min(left, right - minimalDistance), prevState[1]])
+    }
+    if (thumbs[1] !== right) {
+      setThumbs((prevState) => [prevState[0], Math.max(right, left + minimalDistance)])
+    }
+  }
+
   return (
-    <Slider
-      value={[3, 7_000_000]}
-      defaultValue={[0, 5_000_000]}
-      min={0}
-      max={10_000_000}
-      marks={[{ value: 0, label: '0 руб.' }, { value: 10_000_000, label: '10 млн. руб.' }]}
-    />
+    <Wrapper>
+      <Typography>
+        {title}
+      </Typography>
+      <Slider
+        value={thumbs}
+        min={min}
+        max={max}
+        marks={[{ value: min, label: `${min} ${unitTitle}` }, { value: max, label: `${max} ${unitTitle}` }]}
+        step={minimalDistance}
+        onChange={onChange}
+        disableSwap
+      />
+    </Wrapper>
+  
   );
 };
 
